@@ -1,0 +1,34 @@
+REMC - Replica Exchange Monte Carlo protein simulation program
+
+Version2.0 --Released by Tong Wang in May 2017   (Version 1.0 was released in 2007)
+
+
+*** NEW ADDED INPUT FILES ***
+<PDB_ID>.frag
+<PDB_ID>randomcoil.pdb
+
+Create fragment library file by running LRFragLib. LRFragLib generates two output files, <PDB_ID>.frag and <PDB_ID>.lib. <PDB_ID>.lib records detailed information during computation. <PDB_ID>.frag records dihedral angles and is similar with output file by NNMake in Rosetta. LRFragLib could be downloaded at http://166.111.152.91/Downloads.html
+
+To create <PDB_ID>randomcoil.pdb, run REMC with 500,000 steps with T=1000 and fragmoveweight=0 (line 54 in cfg file). In this simulation, using protein pdb file to replace <PDB_ID>randomcoil.pdb as input. The output of this high temperature simulation is a random coil structure labeled as <PDB_ID>randomcoil.pdb.
+
+
+*** NEW ADDED MOVE SET ***
+fragmove.h
+
+This code file provides the necessary functions and classes to run a fragmove.
+
+
+*** NEW ADDED PARAMETERS ***
+FRAGLIB_FILE (line 10 in cfg): <PDB_ID>.frag
+FRAGMOVE (line 54 in cfg): weight of choosing fragmove
+NOISE_RANGE_PHI (line 56 in cfg): rotation noise range of phi torsion angles
+NOISE_RANGE_PSI (line 57 in cfg): rotation noise range of psi torsion angles
+
+
+*** NEW ADDED INTERFACES ***
+Rewrite the function of "MakeMove" (in move.h) 
+Adds some parameters in Backbone.h (line 182-188 and line268-278)
+
+
+*** NEW ADDED OUTPUTS ***
+Add the accepted rates and simulation steps for each move set

@@ -1,0 +1,4 @@
+#/n/app/mpich-1.2.6/bin/mpicc -g3 -O3 -o ../fold_potential_mpi backbone.c -lm -Wall
+#~/mpich/bin/mpicc -g3 -O3 -o ../fold_potential_mpich_ssh backbone.c -lm -Wall
+#mpicc -g3 -O3 -o ../fold_potential_mpi backbone.c -lm -Wall
+/opt/ibmcmp/vacpp/bg/8.0/bin/blrts_xlc backbone.c -o ../fold_potential_mpi -O2  -I/bgl/BlueLight/ppcfloor/bglsys/include -L /bgl/BlueLight/ppcfloor/bglsys/lib -lcxxmpich.rts -lmpich.rts -lmsglayer.rts -lrts.rts -ldevices.rts -lm

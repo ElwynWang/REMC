@@ -1,0 +1,88 @@
+REMC - Replica Exchange Monte Carlo protein simulation program
+
+Version2.0 --Released by Tong Wang in May 2017   (Version 1.0 was released in 2007) 
+
+
+mcpu_prep - the directory containing the code to create input files
+sim - the directory with files prepared for simulations of any specific protein
+src_mpi - the directory with source code
+src_mpi/cfg - the configuration file
+config_files - the directory with parameters
+
+
+1. Create necessary input files: 
+	<PDB_ID>.triple
+	<PDB_ID>.sctorsion
+	<PDB_ID>.sec_str
+	<PDB_ID>.frag
+	<PDB_ID>randomcoil.pdb
+
+To create the first two files, run save_triple.c (in the mcpu_prep directory): 
+	./save_triple <PDB_ID>
+with triple.energy, sct.energy, and <PDB_ID>.fasta in the directory.
+
+Create <PDB_ID>.sec_str manually. File contains secondary structure assignment for each protein residue (see publication [1]).
+first line: use input secondary structure? (9/0 = yes/no)
+second line: secondary structure type (H/E/C = helix/sheet/coil)
+
+Create fragment library file by running LRFragLib. LRFragLib generates two output files, <PDB_ID>.frag and <PDB_ID>.lib. <PDB_ID>.lib records detailed information during computation. <PDB_ID>.frag records dihedral angles and is similar with output file by NNMake in Rosetta. LRFragLib could be downloaded at http://166.111.152.91/Downloads.html
+
+To create <PDB_ID>randomcoil.pdb, run REMC with 500,000 steps with T=1000 and fragmoveweight=0 (line 54 in cfg file). In this simulation, using protein pdb file to replace <PDB_ID>randomcoil.pdb as input. The output of this high temperature simulation is a random coil structure labeled as <PDB_ID>randomcoil.pdb.
+
+Place input files, along with the pdb file, in the directory sim/database/
+(currently contains sample input files for PDB 1ail)
+
+
+2. Edit path and configuration options. 
+- Change all instances of /PATHNAME/ to directory containing the REMC folder, in configuration file /src_mpi/cfg and in src_mpi/backbone.c.
+	Set output directory (PDB_OUT_FILE in cfg and line 9 in backbone.c, in the form /directory/file-prefix)
+- Edit configuration options in cfg. The most relevant options (without changing the potential) are:
+	NATIVE_FILE is <PDB_ID>randomcoil.pdb (see step1), the input for folding simulations (When running a short simulation with very high temperature to generate random coil structure, this file is protein PDB file)
+	STRUCTURE_FILE is protein PDB file (single chain, no hydrogens)
+	FRAGLIB_FILE is <PDB_ID>.frag (see step1) 
+	TEMPLATE_FILE, TRIPLET_ENERGY_FILE, SIDECHAIN_TORSION_FILE, SECONDARY_STRUCTURE_FILE 
+		-- direct these to the correct input file in the sim folder. 
+		- TEMPLATE_FILE is a required blank file, nothing.template.
+		- TRIPLET_ENERGY_FILE is <PDB_ID>.triple (see step 1)
+		- SIDECHAIN_TORSION_FILE is <PDB_ID>.sctorsion
+		- SECONDARY_STRUCTURE_FILE is <PDB_ID>.sec_str
+	MC_STEPS -- length of the simulation
+	MC_PDB_PRINT_STEPS -- frequency of outputting coordinates to a pdb file
+	MC_PRINT_STEPS -- frequency of outputting energies to log file
+	MC_REPLICA_STEPS -- frequency of replica exchange. 
+	FRAGMOVE -- weight of choosing fragmove
+	NOISE_RANGE_PHI -- rotation noise range of phi torsion angles
+	NOISE_RANGE_PSI -- rotation noise range of psi torsion angles
+
+
+- Edit temperature range if necessary 
+	Set minimum temperature: backbone.c, line 12. 
+	To use a different temperature range, change both backbone.c (line 27) and init.h (function SetProgramOptions, line 1271). 
+
+
+3. Change parameters in define.h if necessary
+Contains weights for different energy terms (see publications [1]): 
+POTNTL_WEIGHT -- contact potential
+HBOND_WEIGHT -- hydrogen bonding
+TOR_WEIGHT -- torsional energy for amino acid triplets
+SCT_WEIGHT -- side chain torsional energy
+ARO_WEIGHT -- relative orientations of aromatic residues
+
+
+4. Compile and run
+The command for code compiling (within src_mpi directory):
+mpicc -O3 -o fold_potential_mpi backbone.c -lm
+To run:
+mpiexec -n <# of procs> ./fold_potential_mpi cfg
+	where each processor runs a simulation at a different temperature 
+
+
+5. Data analysis
+Output PDB file names look like: file-prefix_temperature.MCstep
+One log file is output for each simulation temperature: file-prefix_temperature.log
+Each log file contains:
+total energy (energy), contact number (contact), and rmsd from native structure (rmsd) and accepted rate and steps for each move set.
+
+Publications:
+[1] J.S. Yang et al., Structure 15, 53 (2007)
+

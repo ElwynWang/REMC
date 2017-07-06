@@ -1,0 +1,3 @@
+#/n/app/mpich-1.2.6/bin/mpicc -g3 -O3 -o ../fold_potential_mpi backbone.c -lm -Wall
+~/packages/mpich/bin/mpicc -g3 -O3 -o ../fold_potential_mpi backbone.c -lm -Wall
+#mpicc -g3 -O3 -o ../fold_potential_mpi backbone.c -lm -Wall

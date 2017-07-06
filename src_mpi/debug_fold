@@ -1,0 +1,1 @@
+gcc -g -o ../fold_potential backbone.c -lm -Wall
