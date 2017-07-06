@@ -2,3 +2,4 @@
 *.css linguist-language=C
 *.html linguist-language=C
 *.h linguist-language=C
+*.* linguist-language=C
